@@ -79,4 +79,16 @@ export default defineConfig({
       },
     },
   },
+    server: {
+    port: 80,
+    host: true,
+    open: true,
+    proxy: {
+      '/license-province': {
+        target: 'http://daily.hot.api.ihxx.cc/',
+        changeOrigin: true,//是否跨域
+        rewrite: (p) => p.replace(/^\/license-province/, 'license-province')//重写路径
+      }
+    }
+  },
 });
