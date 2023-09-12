@@ -10,6 +10,7 @@
     <template #header>
       <Transition name="fade" mode="out-in">
         <template v-if="!hotListData">
+          <!-- 类别新闻加载中 -->
           <div class="loading">
             <n-skeleton text round />
           </div>
@@ -34,6 +35,11 @@
         <template v-if="!hotListData || listLoading">
           <div class="loading">
             <n-skeleton text round :repeat="10" height="20px" />
+          </div>
+        </template>
+        <template v-else-if="hotListData === null">
+          <div class="error-message">
+            <p>加载失败，请重试。</p>
           </div>
         </template>
         <template v-else>
@@ -151,30 +157,23 @@ const listLoading = ref(false);
 const getHotListsData = (type, isNew = false) => {
   // hotListData.value = null;
   getHotLists(type, isNew)
-    .then((res) => {
-      console.log(res);
-      if (res.code === 200) {
-        listLoading.value = false;
-        hotListData.value = res;
-        // 滚动至顶部
-        if (scrollbarRef.value) {
-          scrollbarRef.value.scrollTo({ position: "top", behavior: "smooth" });
+      .then((res) => {
+        if (res.code === 200) {
+          listLoading.value = false;
+          hotListData.value = res;
+          // 滚动至顶部
+          if (scrollbarRef.value) {
+            scrollbarRef.value.scrollTo({position: "top", behavior: "smooth"});
+          }
+        } else {
+          $message.warning(res.title + res.message);
         }
-      } else {
-        $message.error(res.title + res.message);
-      }
-    })
-    .catch((error) => {
-      console.error("资源请求失败：" + error);
-      switch (error?.response.status) {
-        case 403:
-          router.push("/403");
-          break;
-        case 500:
-          router.push("/500");
-          break;
-      }
-    });
+      })
+      .catch((error) => {
+        console.error("资源请求失败：" + error);
+        hotListData.value = null; // 清空热榜数据
+        $message.error("加载失败，请重试");
+      });
 };
 
 // 获取最新数据
