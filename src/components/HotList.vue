@@ -173,9 +173,6 @@ const getHotListsData = (type, isNew = false) => {
         case 500:
           router.push("/500");
           break;
-        default:
-          router.push("/404");
-          break;
       }
     });
 };
